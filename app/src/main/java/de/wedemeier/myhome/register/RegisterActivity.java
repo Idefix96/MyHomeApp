@@ -24,7 +24,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
+import de.wedemeier.myhome.apiconnect.PostRequest;
 import de.wedemeier.myhome.security.LoginActivity;
 import de.wedemeier.myhome.system.SystemActivity;
 
@@ -47,81 +52,44 @@ public class RegisterActivity extends SystemActivity  {
                  .allowMainThreadQueries()
                  .build();
         final TextView textView =  findViewById(R.id.et_response);
-        final RequestQueue queue = Volley.newRequestQueue(this);
 
-        final Button button =  findViewById(R.id.btn_register);
-        final  Intent intent = new Intent(this, LoginActivity.class);
-
+         Button button =  findViewById(R.id.btn_register);
+        final Intent intent = new Intent(this, LoginActivity.class);
+        final Context context = this;
+        final LifecycleOwner owner = this;
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String url = "http://192.168.178.45:8000/register";
-                StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-
-                                User user = new User();
-                                textView.setText( response);
-
-                                user.firstName = ((EditText) findViewById(R.id.et_firstName)).getText().toString();
-                                user.lastName = ((EditText) findViewById(R.id.et_name)).getText().toString();
-                                user.password = get_SHA_256_SecurePassword(((EditText) findViewById(R.id.et_password)).getText().toString());
-                                user.userName =((EditText) findViewById(R.id.et_userName)).getText().toString();
-                                user.email = ((EditText) findViewById(R.id.et_email)).getText().toString();
-
-                                try {
-                                    JSONObject result = new JSONObject(response);
-                                    user.apiToken = result.getString("apiToken");
-                                    UserDao userDao = db. userDao();
-                                    userDao.insertAll(user);
-
-                                    savePreference("defaultUser", user.userName);
-                                    savePreference("defaultPassword", user.password);
-                                    startActivity(intent);
-                                }
-                                catch(JSONException e) {
-                                    // returned data is not JSONObject?
-                                    textView.setText("no json");
-                                }
-                            }
-                        }, new Response.ErrorListener() {
+                final User user = new User();
+                Map<String, String> requestBody = new HashMap<String, String>();
+                requestBody.put("username",((EditText) findViewById(R.id.et_userName)).getText().toString());
+                requestBody.put("email",((EditText) findViewById(R.id.et_email)).getText().toString());
+                requestBody.put("password",((EditText) findViewById(R.id.et_password)).getText().toString());
+                PostRequest request = new PostRequest(context, "/register", requestBody);
+                request.getRequestResult().observe(owner, new Observer<JSONObject>() {
                     @Override
-                    public void onErrorResponse(VolleyError error) {
-                        NetworkResponse response = error.networkResponse;
-                            try {
-                                String res = new String(response.data,
-                                        HttpHeaderParser.parseCharset(response.headers, "utf-8"));
-                                // Now you can use any deserializer to make sense of data
-                                JSONObject obj = new JSONObject(res);
-                                textView.setText("Response is: " +res );
-                            } catch (UnsupportedEncodingException e1) {
-                                // Couldn't properly decode data to string
-                                textView.setText("Response2 is: " );
-                            } catch (JSONException e2) {
-                                // returned data is not JSONObject?
-                                textView.setText("Response3 is: ");
-                            }
+                    public void onChanged(JSONObject result) {
+                        try {
+                            textView.setText( result.toString());
+                            user.apiToken = result.getString("apiToken");
+                            user.firstName = ((EditText) findViewById(R.id.et_firstName)).getText().toString();
+                            user.lastName = ((EditText) findViewById(R.id.et_name)).getText().toString();
+                            user.password = get_SHA_256_SecurePassword(((EditText) findViewById(R.id.et_password)).getText().toString());
+                            user.userName =((EditText) findViewById(R.id.et_userName)).getText().toString();
+                            user.email = ((EditText) findViewById(R.id.et_email)).getText().toString();
+                            UserDao userDao = db.userDao();
+                            userDao.insertAll(user);
 
+                            savePreference("defaultUser", user.userName);
+                            savePreference("defaultPassword", user.password);
+                            startActivity(intent);
+                        }
+                        catch(JSONException e)
+                        {}
                     }
-                }) {@Override
-                public String getBodyContentType () {
-                    return "application/x-www-form-urlencoded; charset=utf-8";
-                }
+            });
+        }});
 
-                @Override
-                public byte[] getBody () throws AuthFailureError {
-                   return ("email=" + ((EditText) findViewById(R.id.et_email)).getText().toString() + "&username="
-                           + ((EditText) findViewById(R.id.et_userName)).getText().toString()+ "&password=" +
-                           get_SHA_256_SecurePassword(((EditText) findViewById(R.id.et_password)).getText().toString())
-                           ).getBytes();
-                }
-            };
 
-// Add the request to the RequestQueue.
-                queue.add(stringRequest);
-
-            }
-        });
     }
 
 }

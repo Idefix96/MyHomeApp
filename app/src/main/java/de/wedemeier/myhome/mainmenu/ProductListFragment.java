@@ -1,19 +1,19 @@
-package de.wedemeier.myhome.register;
+package de.wedemeier.myhome.mainmenu;
 
 import android.os.Bundle;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.fragment.app.Fragment;
 import de.wedemeier.myhome.R;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class RegistrationFragment extends Fragment {
+public class ProductListFragment extends Fragment {
 
-    public RegistrationFragment() {
+    public ProductListFragment() {
         // Required empty public constructor
     }
 
@@ -23,6 +23,6 @@ public class RegistrationFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        return inflater.inflate(R.layout.fragment_registration, container, false);
+        return inflater.inflate(R.layout.fragment_product_list, container, false);
     }
 }

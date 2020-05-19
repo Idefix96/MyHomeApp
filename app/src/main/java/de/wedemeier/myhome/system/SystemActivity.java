@@ -1,34 +1,28 @@
 package de.wedemeier.myhome.system;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.os.Bundle;
-import android.util.Log;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import de.wedemeier.myhome.R;
-import de.wedemeier.myhome.entity.User;
-import de.wedemeier.myhome.repository.UserRepository;
+import de.wedemeier.myhome.apiconnect.Request;
+import de.wedemeier.myhome.viewmodel.ProductViewModel;
 import de.wedemeier.myhome.viewmodel.UserViewModel;
 
 public class SystemActivity extends AppCompatActivity {
 
     protected UserViewModel userViewModel;
+    protected ProductViewModel productViewModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userViewModel = new UserViewModel(this.getApplication());
+        productViewModel = new ProductViewModel(this.getApplication());
+        Request.setBaseUrl(this, "http://192.168.178.45:8000");
     }
-
 
     public static String get_SHA_256_SecurePassword(String passwordToHash)
     {

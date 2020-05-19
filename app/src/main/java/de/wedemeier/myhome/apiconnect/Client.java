@@ -6,7 +6,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 public class Client {
-    private String apiUrl;
+    private static String apiUrl;
     private Context context;
     private RequestQueue queue;
 
@@ -22,4 +22,13 @@ public class Client {
         queue.add(request);
     }
 
+    public void setApiUrl(String url)
+    {
+        apiUrl = url;
+    }
+
+    public static String getApiUrl()
+    {
+      return apiUrl;
+    }
 }

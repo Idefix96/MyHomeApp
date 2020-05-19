@@ -5,12 +5,13 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import de.wedemeier.myhome.entity.Product;
 import de.wedemeier.myhome.entity.User;
 
-@Database(entities = {User.class}, version = 1)
+@Database(entities = {User.class, Product.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract UserDao userDao();
-
+    public abstract ProductDao productDao();
     private static AppDatabase INSTANCE;
 
     public static AppDatabase getDatabase(final Context context) {
